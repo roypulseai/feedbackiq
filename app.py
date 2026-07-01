@@ -118,6 +118,17 @@ with st.sidebar:
             except Exception as e:
                 st.error(f"Connection error: {e}")
 
+    st.markdown("---")
+    st.markdown("<p style='font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; color:#999; margin-bottom:0.25rem'>Processing</p>", unsafe_allow_html=True)
+    batch_size = st.slider(
+        "Rows per batch",
+        min_value=50,
+        max_value=500,
+        value=100,
+        step=10,
+        help="Sentiment analysis runs in batches. Smaller batches use less memory but take longer.",
+    )
+
 # --- Main Content ---
 df = st.session_state.df
 
@@ -163,14 +174,29 @@ else:
             sentiment_analyzer, topic_model = load_models()
 
             with st.status("Analyzing feedback...", expanded=True) as status:
-                st.write("Running sentiment classification...")
-                sentiment_results = sentiment_analyzer(documents, truncation=True, max_length=512, batch_size=8)
+                progress_bar = st.progress(0)
+                status_label = st.empty()
 
-                st.write("Discovering topics...")
+                total = len(documents)
+                chunk_size = min(batch_size, total)
+                all_sentiment_results = []
+
+                for start in range(0, total, chunk_size):
+                    end = min(start + chunk_size, total)
+                    chunk = documents[start:end]
+                    status_label.text(f"Sentiment analysis: {end} / {total} rows")
+                    chunk_results = sentiment_analyzer(chunk, truncation=True, max_length=512, batch_size=8)
+                    all_sentiment_results.extend(chunk_results)
+                    progress_bar.progress(end / total)
+
+                status_label.text("Discovering topics across all documents...")
                 topics, _ = topic_model.fit_transform(documents)
-
                 topic_info = topic_model.get_topic_info()
+
+                progress_bar.empty()
+                status_label.empty()
                 status.update(label="Analysis complete", state="complete", expanded=False)
+                sentiment_results = all_sentiment_results
 
             df["Sentiment"] = None
             df["Confidence"] = None
