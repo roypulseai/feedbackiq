@@ -120,7 +120,8 @@ else:
         run_btn = st.button("Run Analysis", type="primary", use_container_width=True)
 
     if run_btn and text_column:
-        documents = df[text_column].dropna().astype(str).tolist()
+        non_null_idx = df[text_column].dropna().index
+        documents = df.loc[non_null_idx, text_column].astype(str).tolist()
 
         if not documents:
             st.warning("The selected column contains no text data.")
@@ -137,9 +138,12 @@ else:
                 topic_info = topic_model.get_topic_info()
                 status.update(label="Analysis complete", state="complete", expanded=False)
 
-            df.loc[df[text_column].notna(), "Sentiment"] = [r["label"].title() for r in sentiment_results]
-            df.loc[df[text_column].notna(), "Confidence"] = [round(r["score"], 3) for r in sentiment_results]
-            df.loc[df[text_column].notna(), "Topic_ID"] = topics
+            df["Sentiment"] = None
+            df["Confidence"] = None
+            df["Topic_ID"] = None
+            df.loc[non_null_idx, "Sentiment"] = [r["label"].title() for r in sentiment_results]
+            df.loc[non_null_idx, "Confidence"] = [round(r["score"], 3) for r in sentiment_results]
+            df.loc[non_null_idx, "Topic_ID"] = topics
             topic_mapping = dict(zip(topic_info["Topic"], topic_info["Name"]))
             df["Topic_Name"] = df["Topic_ID"].map(topic_mapping)
 
