@@ -1,0 +1,8 @@
+streamlit>=1.32.0
+pandas>=2.2.0
+sqlalchemy>=2.0.28
+psycopg2-binary>=2.9.9
+transformers>=4.38.2
+torch>=2.2.1
+bertopic>=0.16.0
+pyarmor>=8.0.0
