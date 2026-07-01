@@ -3,6 +3,7 @@ import pandas as pd
 from sqlalchemy import create_engine, text
 from transformers import pipeline
 from bertopic import BERTopic
+import os
 
 st.set_page_config(page_title="FeedbackIQ", layout="wide")
 
@@ -58,19 +59,52 @@ st.markdown("<p style='color:#666; margin-top:0; margin-bottom:1.5rem'>Multiling
 # --- Sidebar: Data Ingestion ---
 with st.sidebar:
     st.markdown("<p style='font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; color:#999; margin-bottom:0.25rem'>Data Source</p>", unsafe_allow_html=True)
-    data_source = st.radio("input_method", ["CSV Upload", "PostgreSQL Connection"], label_visibility="collapsed")
+    data_source = st.radio("input_method", ["File Upload", "Database Connection"], label_visibility="collapsed")
 
-    if data_source == "CSV Upload":
-        uploaded_file = st.file_uploader("Upload CSV File", type=["csv"], label_visibility="collapsed")
+    if data_source == "File Upload":
+        uploaded_file = st.file_uploader(
+            "Upload a file",
+            type=["csv", "tsv", "xlsx", "xls"],
+            label_visibility="collapsed",
+        )
         if uploaded_file:
-            new_df = pd.read_csv(uploaded_file)
-            st.session_state.df = new_df
-            st.session_state.analyzed = False
-            st.session_state.topic_info = pd.DataFrame()
-            st.success(f"Loaded {len(new_df)} rows")
+            ext = os.path.splitext(uploaded_file.name)[1].lower()
+            try:
+                if ext == ".csv":
+                    new_df = pd.read_csv(uploaded_file)
+                elif ext == ".tsv":
+                    new_df = pd.read_csv(uploaded_file, sep="\t")
+                elif ext in (".xlsx", ".xls"):
+                    new_df = pd.read_excel(uploaded_file)
+                else:
+                    st.error(f"Unsupported file format: {ext}")
+                    new_df = None
+                if new_df is not None:
+                    st.session_state.df = new_df
+                    st.session_state.analyzed = False
+                    st.session_state.topic_info = pd.DataFrame()
+                    st.success(f"Loaded {len(new_df)} rows from {uploaded_file.name}")
+            except Exception as e:
+                st.error(f"Error reading file: {e}")
 
-    elif data_source == "PostgreSQL Connection":
-        db_uri = st.text_input("Database URI", type="password", placeholder="postgresql://user:pass@host:5432/db")
+    elif data_source == "Database Connection":
+        db_type = st.selectbox(
+            "Database Engine",
+            ["PostgreSQL", "MySQL", "MS SQL Server", "Oracle", "Other"],
+        )
+        uri_templates = {
+            "PostgreSQL": "postgresql://user:password@host:5432/database",
+            "MySQL": "mysql+pymysql://user:password@host:3306/database",
+            "MS SQL Server": "mssql+pymssql://user:password@host:1433/database",
+            "Oracle": "oracle+oracledb://user:password@host:1521/service_name",
+            "Other": "dialect+driver://user:password@host:port/database",
+        }
+        db_uri = st.text_input(
+            "Connection URI",
+            type="password",
+            placeholder=uri_templates.get(db_type, uri_templates["Other"]),
+            help=f"Format: {uri_templates.get(db_type, uri_templates['Other'])}",
+        )
         query = st.text_area("SQL Query", value="SELECT * FROM feedback LIMIT 1000;", height=100)
         if st.button("Execute Query", use_container_width=True):
             try:

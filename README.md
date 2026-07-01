@@ -6,8 +6,8 @@ FeedbackIQ is a fully containerized, offline-capable Streamlit application that 
 
 ## Features
 
-- **CSV Upload** — Drop in any feedback CSV file and analyze text columns.
-- **PostgreSQL Integration** — Connect directly to a database and run custom queries.
+- **CSV / TSV / Excel Upload** — Drop in CSV, TSV, or Excel (.xlsx/.xls) files and analyze any text column.
+- **Database Integration** — Connect directly to PostgreSQL, MySQL, MS SQL Server, or Oracle and run custom queries.
 - **Multilingual Sentiment** — Powered by `lxyuan/distilbert-base-multilingual-cased-sentiments-student` (supports 6+ languages).
 - **Topic Discovery** — Automatic theme extraction via BERTopic with multilingual sentence embeddings.
 - **Interactive Dashboard** — Sentiment distribution bar chart, top topics, and a sortable data table.
@@ -36,8 +36,8 @@ FeedbackIQ is a fully containerized, offline-capable Streamlit application that 
 
 ### Usage
 
-1. Choose a data source in the sidebar (**CSV Upload** or **PostgreSQL Connection**).
-2. Select the text column to analyze.
+1. Choose a data source in the sidebar (**File Upload** or **Database Connection**).
+2. Upload a CSV/TSV/Excel file or enter database credentials and a SQL query.
 3. Click **Run NLP Analysis**.
 4. View sentiment distribution, discovered topics, and the detailed results table.
 5. Download results as CSV.
