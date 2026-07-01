@@ -57,16 +57,7 @@ git clone https://github.com/roypulseai/feedbackiq.git
 cd feedbackiq
 ```
 
-### Step 2: Obfuscate (protect source code)
-
-```bash
-pip install pyarmor
-pyarmor gen app.py
-```
-
-This creates a `dist/` folder with the encrypted `app.py`.
-
-### Step 3: Build the Docker Image
+### Step 2: Build the Docker Image
 
 ```bash
 docker build -t feedbackiq .
@@ -74,19 +65,31 @@ docker build -t feedbackiq .
 
 The build will download and cache the ML models inside the image.
 
-### Step 4: Export for Distribution
-
-```bash
-docker save -o feedbackiq.tar feedbackiq
-```
-
-### Step 5: Test Locally
+### Step 3: Test Locally
 
 ```bash
 docker run -p 8501:8501 feedbackiq
 ```
 
 Open http://localhost:8501
+
+### Step 4: Export for Distribution
+
+```bash
+docker save -o feedbackiq.tar feedbackiq
+```
+
+### (Optional) Obfuscate Source for Production
+
+If you are distributing the application and want to protect the source code:
+
+```bash
+pip install pyarmor
+pyarmor gen app.py
+# Then use the production Dockerfile for obfuscated builds
+```
+
+This creates a `dist/` folder with the encrypted `app.py`. For production builds that use the obfuscated code, replace `COPY app.py .` with `COPY dist/ .` in the `Dockerfile` before building.
 
 ## Project Structure
 

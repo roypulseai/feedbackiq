@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY download_models.py .
 RUN python download_models.py
 
-COPY dist/ .
+COPY app.py .
 
 EXPOSE 8501
 
