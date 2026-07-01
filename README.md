@@ -42,6 +42,14 @@ FeedbackIQ is a fully containerized, offline-capable Streamlit application that 
 4. View sentiment distribution, discovered topics, and the detailed results table.
 5. Download results as CSV.
 
+### Stopping the App
+
+- **Windows / macOS launcher**: Press `Ctrl+C` in the terminal or command window, then close it.
+- **Terminal**: Press `Ctrl+C` to stop the container.
+- **Docker Desktop**: Right-click the Docker whale icon in the system tray (Windows) or menu bar (macOS) and select **Quit Docker Desktop**.
+
+To restart, simply run `Start_App.bat` or `Start_App.command` again.
+
 ## Quick Build (No Terminal Required)
 
 ### Windows
