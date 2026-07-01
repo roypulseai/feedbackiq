@@ -114,6 +114,42 @@ feedbackiq/
 | Deployment | Docker (offline container) |
 | Hardware Target | Intel i3 / 8GB RAM (`batch_size=8`) |
 
+## Limitations
+
+- **HF_TOKEN required for reliable builds** — Hugging Face throttles unauthenticated downloads. Without setting `HF_TOKEN`, model downloads during `docker build` may be slow or fail under heavy traffic. Set it via:
+  ```bash
+  docker build --build-arg HF_TOKEN=hf_your_token -t feedbackiq .
+  ```
+  Get your free token at https://huggingface.co/settings/tokens
+
+- **Large image size (4-6 GB)** — ML models are baked into the Docker image. Distribution via `docker save` produces a multi-gigabyte tar file. Ensure sufficient disk and bandwidth.
+
+- **BERTopic needs ~100+ documents** — For smaller datasets, topic modeling may classify most entries as outliers (-1) instead of forming meaningful clusters.
+
+- **Single-word & sarcasm blind spots** — The sentiment model can misclassify very short inputs (e.g., `"Bad"` scored as Positive with low confidence) and struggles with sarcasm, irony, or heavy code-switching.
+
+- **Memory floor** — `batch_size=8` is tuned for 8GB RAM machines, but running both sentiment and topic models simultaneously still pushes that limit. Expect higher RAM usage during analysis.
+
+- **Stateless UI** — Streamlit runs in-memory; results vanish on page refresh. Download the CSV to persist analyzed data.
+
+- **Single-user** — Streamlit serves one process. Not designed for concurrent multi-user access without additional infrastructure.
+
+- **One-time internet needed** — The initial Docker build downloads models from Hugging Face. After the image is built, the application runs fully offline.
+
+## Privacy & Data Protection
+
+FeedbackIQ is designed with a **privacy-first, offline architecture**:
+
+- **Data never leaves your machine** — All processing happens inside the local Docker container. No data is sent to external APIs, cloud services, or third parties.
+- **No telemetry or tracking** — The application contains no analytics, telemetry, or phone-home functionality.
+- **CSV data stays on disk** — Uploaded CSV files are read into memory and processed locally. They are not persisted, cached, or transmitted anywhere.
+- **PostgreSQL credentials** — Database URIs are entered via a password-masked input field and used only for the duration of the session. Credentials are never logged or stored.
+- **Optional internet for model download** — The only network activity is during `docker build` when ML models are downloaded from Hugging Face. See `HF_TOKEN` note above. Once the image is built, no network access is required.
+- **No user accounts** — The application has no authentication, no user database, and no persistent storage of personal data.
+- **Suitable for GDPR/DPA compliance** — Because all data processing is local and no personal data is transmitted or stored by the application, it aligns with data protection requirements where processing must remain under the data controller's control.
+
+> **Note**: Users are responsible for ensuring that any data loaded into FeedbackIQ (via CSV or PostgreSQL) complies with their own data protection obligations, including obtaining necessary consent and anonymizing personal data where appropriate.
+
 ## License
 
 MIT
