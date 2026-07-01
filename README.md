@@ -42,13 +42,30 @@ FeedbackIQ is a fully containerized, offline-capable Streamlit application that 
 4. View sentiment distribution, discovered topics, and the detailed results table.
 5. Download results as CSV.
 
-## Build from Source (Developer)
+## Quick Build (No Terminal Required)
+
+### Windows
+
+Double-click **`Build_App.bat`**. It will:
+
+1. Verify Docker is installed and running
+2. Build the Docker image (downloads ML models on first run)
+3. Export `feedbackiq.tar`
+4. Tell you when it's done
+
+Then double-click **`Start_App.bat`** to run.
+
+### macOS
+
+Double-click **`Build_App.command`** (you may need to allow it in Security & Privacy on first run). Then double-click **`Start_App.command`** to run.
+
+## Build from Source (Manual)
 
 ### Requirements
 
-- Python 3.10+
-- Docker Desktop
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - 8GB+ RAM (for model downloads)
+- 10GB+ free disk space
 
 ### Step 1: Clone & Setup
 
@@ -63,7 +80,7 @@ cd feedbackiq
 docker build -t feedbackiq .
 ```
 
-The build will download and cache the ML models inside the image.
+The build will download and cache the ML models inside the image (first run only).
 
 ### Step 3: Test Locally
 
